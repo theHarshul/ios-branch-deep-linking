@@ -573,6 +573,14 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  */
 - (void)loadRewardsWithCallback:(callbackWithStatus)callback;
 
+
+/**
+ Loads credit totals from the server for the latest referring user.
+ 
+ @param callback The callback that is called once the request has completed.
+ */
+- (void)loadReferringRewardsWithCallback:(callbackWithParams)callback;
+
 /**
  Redeem credits from the default bucket.
  

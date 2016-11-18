@@ -23,6 +23,7 @@
 #import "BranchSetIdentityRequest.h"
 #import "BranchLogoutRequest.h"
 #import "BranchUserCompletedActionRequest.h"
+#import "BranchLoadReferringRewardsRequest.h"
 #import "BranchLoadRewardsRequest.h"
 #import "BranchRedeemRewardsRequest.h"
 #import "BranchCreditHistoryRequest.h"
@@ -667,6 +668,24 @@ NSString * const BNCShareCompletedEvent = @"Share Completed";
 
 
 #pragma mark - Credit methods
+
+- (NSString *)latestReferringIdentityId {
+    if ([self.getLatestReferringParams[@"$identity_id"] isKindOfClass:[NSString class]]) {
+        return self.getLatestReferringParams[@"$identity_id"];
+    } else if ([self.getFirstReferringParams[@"$identity_id"] isKindOfClass:[NSString class]]) {
+        return self.getFirstReferringParams[@"$identity_id"];
+    } else {
+        return nil;
+    }
+}
+
+- (void)loadReferringRewardsWithCallback:(callbackWithParams)callback {
+    [self initSessionIfNeededAndNotInProgress];
+    
+    BranchLoadReferringRewardsRequest *req = [[BranchLoadReferringRewardsRequest alloc] initWithIdentityId:[self latestReferringIdentityId] callback:callback];
+    [self.requestQueue enqueue:req];
+    [self processNextQueueItem];
+}
 
 - (void)loadRewardsWithCallback:(callbackWithStatus)callback {
     [self initSessionIfNeededAndNotInProgress];

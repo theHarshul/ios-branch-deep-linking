@@ -75,6 +75,10 @@ NSString *type = @"some type";
     [self.branchUniversalObject getShortUrlWithLinkProperties:linkProperties andCallback:^(NSString *url, NSError *error) {
         [self.branchLinkTextField setText:url];
     }];
+    
+    [[Branch getInstance] loadReferringRewardsWithCallback:^(NSDictionary *data, NSError *error) {
+        
+    }];
 }
 
 

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		073C4CE21DDEA8F600941949 /* BranchLoadReferringRewardsRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 073C4CE11DDEA8F600941949 /* BranchLoadReferringRewardsRequest.m */; };
+		073C4CE41DDEA92D00941949 /* BranchLoadReferringRewardsRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 073C4CE31DDEA92D00941949 /* BranchLoadReferringRewardsRequest.h */; };
 		460F4FA71B618A38002E84D6 /* BranchSpotlightUrlRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 460F4FA51B618A38002E84D6 /* BranchSpotlightUrlRequest.h */; };
 		460F4FA81B618A38002E84D6 /* BranchSpotlightUrlRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 460F4FA61B618A38002E84D6 /* BranchSpotlightUrlRequest.m */; };
 		461019461AE551A500379A15 /* BranchNetworkScenarioTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 461019451AE551A500379A15 /* BranchNetworkScenarioTests.m */; };
@@ -149,6 +151,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		073C4CE11DDEA8F600941949 /* BranchLoadReferringRewardsRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BranchLoadReferringRewardsRequest.m; sourceTree = "<group>"; };
+		073C4CE31DDEA92D00941949 /* BranchLoadReferringRewardsRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BranchLoadReferringRewardsRequest.h; sourceTree = "<group>"; };
 		423ACD2DEBB9A2E4FAF64B08 /* libPods-Branch-SDK-Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Branch-SDK-Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		460F4FA51B618A38002E84D6 /* BranchSpotlightUrlRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BranchSpotlightUrlRequest.h; sourceTree = "<group>"; };
 		460F4FA61B618A38002E84D6 /* BranchSpotlightUrlRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BranchSpotlightUrlRequest.m; sourceTree = "<group>"; };
@@ -370,6 +374,8 @@
 				4659B34F1B0FDAB70019767C /* BranchLogoutRequest.m */,
 				4659B3511B0FDD3C0019767C /* BranchUserCompletedActionRequest.h */,
 				4659B3521B0FDD3C0019767C /* BranchUserCompletedActionRequest.m */,
+				073C4CE31DDEA92D00941949 /* BranchLoadReferringRewardsRequest.h */,
+				073C4CE11DDEA8F600941949 /* BranchLoadReferringRewardsRequest.m */,
 				4659B3571B0FE0F70019767C /* BranchLoadRewardsRequest.h */,
 				4659B3581B0FE0F70019767C /* BranchLoadRewardsRequest.m */,
 				4659B35A1B0FE21A0019767C /* BranchRedeemRewardsRequest.h */,
@@ -621,6 +627,7 @@
 				460F4FA71B618A38002E84D6 /* BranchSpotlightUrlRequest.h in Headers */,
 				54FF1F911BD1DC320004CE2E /* BranchLinkProperties.h in Headers */,
 				4D8999EC1DC108FF00F7EE0A /* BNCXcode7Support.h in Headers */,
+				073C4CE41DDEA92D00941949 /* BranchLoadReferringRewardsRequest.h in Headers */,
 				67486B8D1B93B48A0044D872 /* BNCStrongMatchHelper.h in Headers */,
 				46946BA31B2689A100627BCC /* BranchOpenRequest.h in Headers */,
 				46946BA41B2689A100627BCC /* BranchInstallRequest.h in Headers */,
@@ -816,6 +823,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				463F0A311B20A663004235D2 /* BNCServerRequest.m in Sources */,
+				073C4CE21DDEA8F600941949 /* BranchLoadReferringRewardsRequest.m in Sources */,
 				7D58823A1CA1DF2700FF6358 /* BNCDeviceInfo.m in Sources */,
 				7D0C971D1D875465004E14B1 /* BranchContentDiscoveryManifest.m in Sources */,
 				466D5A121B5991E3009DB845 /* BNCContentDiscoveryManager.m in Sources */,
