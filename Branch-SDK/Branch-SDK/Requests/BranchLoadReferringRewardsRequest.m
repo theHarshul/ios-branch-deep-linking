@@ -29,9 +29,14 @@
 }
 
 - (void)makeRequest:(BNCServerInterface *)serverInterface key:(NSString *)key callback:(BNCServerCallback)callback {
-    BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
-    NSString *endpoint = [BRANCH_REQUEST_ENDPOINT_LOAD_REWARDS stringByAppendingPathComponent:self.identityId];
-    [serverInterface getRequest:nil url:[preferenceHelper getAPIURL:endpoint] key:key callback:callback];
+    
+    if (self.identityId != nil) {
+        BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
+        NSString *endpoint = [BRANCH_REQUEST_ENDPOINT_LOAD_REWARDS stringByAppendingPathComponent:self.identityId];
+        [serverInterface getRequest:nil url:[preferenceHelper getAPIURL:endpoint] key:key callback:callback];
+    } else {
+        self.callback(@{}, [[NSError alloc] initWithDomain:@"identity_id_not_found" code:1001 userInfo:nil]);
+    }
 }
 
 - (void)processResponse:(BNCServerResponse *)response error:(NSError *)error {
