@@ -35,7 +35,9 @@
         NSString *endpoint = [BRANCH_REQUEST_ENDPOINT_LOAD_REWARDS stringByAppendingPathComponent:self.identityId];
         [serverInterface getRequest:nil url:[preferenceHelper getAPIURL:endpoint] key:key callback:callback];
     } else {
-        self.callback(@{}, [[NSError alloc] initWithDomain:@"identity_id_not_found" code:1001 userInfo:nil]);
+        if (self.callback) {
+            self.callback(@{}, [[NSError alloc] initWithDomain:@"identity_id_not_found" code:1001 userInfo:nil]);
+        }
     }
 }
 

@@ -683,16 +683,18 @@ NSString * const BNCShareCompletedEvent = @"Share Completed";
     [self initSessionIfNeededAndNotInProgress];
     
     BranchLoadReferringRewardsRequest *req = [[BranchLoadReferringRewardsRequest alloc] initWithIdentityId:[self latestReferringIdentityId] callback:callback];
-    [self.requestQueue enqueue:req];
-    [self processNextQueueItem];
+    [req makeRequest:self.bServerInterface key:self.branchKey callback:^(BNCServerResponse *response, NSError *error){
+        [req processResponse:response error:error];
+    }];
 }
 
 - (void)loadRewardsWithCallback:(callbackWithStatus)callback {
     [self initSessionIfNeededAndNotInProgress];
     
     BranchLoadRewardsRequest *req = [[BranchLoadRewardsRequest alloc] initWithCallback:callback];
-    [self.requestQueue enqueue:req];
-    [self processNextQueueItem];
+    [req makeRequest:self.bServerInterface key:self.branchKey callback:^(BNCServerResponse *response, NSError *error){
+        [req processResponse:response error:error];
+    }];
 }
 
 - (NSInteger)getCredits {
@@ -760,8 +762,9 @@ NSString * const BNCShareCompletedEvent = @"Share Completed";
     [self initSessionIfNeededAndNotInProgress];
     
     BranchCreditHistoryRequest *req = [[BranchCreditHistoryRequest alloc] initWithBucket:bucket creditTransactionId:creditTransactionId length:length order:order callback:callback];
-    [self.requestQueue enqueue:req];
-    [self processNextQueueItem];
+    [req makeRequest:self.bServerInterface key:self.branchKey callback:^(BNCServerResponse *response, NSError *error){
+        [req processResponse:response error:error];
+    }];
 }
 
 - (BranchUniversalObject *)getFirstReferringBranchUniversalObject {
