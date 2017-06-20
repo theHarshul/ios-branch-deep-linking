@@ -28,12 +28,14 @@ NSString *live_key = @"live_key";
 NSString *test_key = @"test_key";
 NSString *type = @"some type";
 
-@interface ViewController ()
+@interface ViewController () <BranchShareLinkDelegate> {
+    NSDateFormatter *_dateFormatter;
+}
 
 @property (weak, nonatomic) IBOutlet UITextField *branchLinkTextField;
 @property (weak, nonatomic) IBOutlet UILabel *pointsLabel;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
-
+@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @property (strong, nonatomic) BranchUniversalObject *branchUniversalObject;
 
 @end
@@ -44,13 +46,18 @@ NSString *type = @"some type";
 
 - (void)viewDidLoad {
     [[UITableViewCell appearance] setBackgroundColor:[UIColor clearColor]];
-    [self.branchLinkTextField addTarget:self action:@selector(textFieldFinished:) forControlEvents:UIControlEventEditingDidEndOnExit];
+    [self.branchLinkTextField
+        addTarget:self
+        action:@selector(textFieldFinished:)
+        forControlEvents:UIControlEventEditingDidEndOnExit];
     [super viewDidLoad];
     
-    UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+    UITapGestureRecognizer *gestureRecognizer =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
     [self.tableView addGestureRecognizer:gestureRecognizer];
     
-    _branchUniversalObject = [[BranchUniversalObject alloc] initWithCanonicalIdentifier: cononicalIdentifier];
+    _branchUniversalObject =
+        [[BranchUniversalObject alloc] initWithCanonicalIdentifier: cononicalIdentifier];
     _branchUniversalObject.canonicalUrl = canonicalUrl;
     _branchUniversalObject.title = contentTitle;
     _branchUniversalObject.contentDescription = contentDescription;
@@ -58,9 +65,21 @@ NSString *type = @"some type";
     _branchUniversalObject.price = 1000;
     _branchUniversalObject.currency = @"$";
     _branchUniversalObject.type = type;
-    [_branchUniversalObject addMetadataKey:@"deeplink_text" value:[NSString stringWithFormat:
-                                                                   @"This text was embedded as data in a Branch link with the following characteristics:\n\n  canonicalUrl: %@\n  title: %@\n  contentDescription: %@\n  imageUrl: %@\n", canonicalUrl, contentTitle, contentDescription, imageUrl]];
-    [self refreshRewardPoints];
+    [_branchUniversalObject
+        addMetadataKey:@"deeplink_text"
+        value:[NSString stringWithFormat:
+            @"This text was embedded as data in a Branch link with the following characteristics:\n\n"
+             "canonicalUrl: %@\n  title: %@\n  contentDescription: %@\n  imageUrl: %@\n",
+                canonicalUrl, contentTitle, contentDescription, imageUrl]];
+
+    self.versionLabel.text =
+        [NSString stringWithFormat:@"v %@ / %@ / %@",
+            [UIDevice currentDevice].systemVersion,
+            [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"],
+            BNC_SDK_VERSION];
+    [self.versionLabel sizeToFit];
+
+   // [self refreshRewardPoints];
 }
 
 
@@ -104,13 +123,17 @@ NSString *type = @"some type";
 - (IBAction)setUserIDButtonTouchUpInside:(id)sender {
     Branch *branch = [Branch getInstance];
     [branch setIdentity: user_id2 withCallback:^(NSDictionary *params, NSError *error) {
-        if (!error) {
-            NSLog(@"Branch TestBed: Identity Successfully Set%@", params);
-            [self performSegueWithIdentifier:@"ShowLogOutput" sender:[NSString stringWithFormat:@"Identity set to: %@\n\n%@", user_id2, params.description]];
-        } else {
-            NSLog(@"Branch TestBed: Error setting identity: %@", error);
-            [self showAlert:@"Unable to Set Identity" withDescription:error.localizedDescription];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!error) {
+                NSLog(@"Branch TestBed: Identity Successfully Set%@", params);
+                [self performSegueWithIdentifier:@"ShowLogOutput"
+                    sender:[NSString stringWithFormat:@"Identity set to: %@\n\n%@",
+                        user_id2, params.description]];
+            } else {
+                NSLog(@"Branch TestBed: Error setting identity: %@", error);
+                [self showAlert:@"Unable to Set Identity" withDescription:error.localizedDescription];
+            }
+        });
     }];
 }
 
@@ -136,11 +159,13 @@ NSString *type = @"some type";
 }
 
 
-- (IBAction)sendBuyEventButtonTouchUpInside:(id)sender {
+- (IBAction)sendButtonEventButtonTouchUpInside:(id)sender {
     Branch *branch = [Branch getInstance];
-    [branch userCompletedAction:@"buy" withState:nil withDelegate:self];
+    [branch userCompletedAction:@"button_press"
+        withState:@{ @"name": @"button1", @"action": @"alert" }
+        withDelegate:self];
     [self refreshRewardPoints];
-    [self showAlert:@"'buy' event dispatched" withDescription:@""];
+    [self showAlert:@"'button_press' event dispatched" withDescription:@""];
 }
 
 
@@ -148,7 +173,7 @@ NSString *type = @"some type";
     NSDictionary *eventDetails = [[NSDictionary alloc] initWithObjects:@[user_id1, [NSNumber numberWithInt:1], [NSNumber numberWithBool:YES], [NSNumber numberWithFloat:3.14159265359], test_key] forKeys:@[@"name",@"integer",@"boolean",@"float",@"test_key"]];
     
     Branch *branch = [Branch getInstance];
-    [branch userCompletedAction:@"buy" withState:eventDetails];
+    [branch userCompletedAction:@"complex_event" withState:eventDetails];
     [self performSegueWithIdentifier:@"ShowLogOutput" sender:[NSString stringWithFormat:@"Custom Event Details:\n\n%@", eventDetails.description]];
     [self refreshRewardPoints];
 }
@@ -185,23 +210,168 @@ NSString *type = @"some type";
     [self showAlert:@"Content Access Registered" withDescription:@""];
 }
 
+- (NSDateFormatter*) dateFormatter {
+    if (_dateFormatter) return _dateFormatter;
 
-- (IBAction)shareLinkButtonTouchUpInside:(id)sender {
+    _dateFormatter = [[NSDateFormatter alloc] init];
+    _dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    _dateFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ssX";
+    _dateFormatter.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    return _dateFormatter;
+}
+
+#pragma mark - Share a Branch Link
+
+- (IBAction)oldShareLinkButtonTouchUpInside:(id)sender {
+    // This method uses the old way of sharing Branch links.
+
     BranchLinkProperties *linkProperties = [[BranchLinkProperties alloc] init];
     linkProperties.feature = feature;
     linkProperties.campaign = @"sharing campaign";
     [linkProperties addControlParam:@"$desktop_url" withValue: desktop_url];
     [linkProperties addControlParam:@"$ios_url" withValue: ios_url];
     
-    [self.branchUniversalObject showShareSheetWithLinkProperties:linkProperties andShareText:shareText fromViewController:self.parentViewController completion:^(NSString *activityType, BOOL completed) {
-        if (completed) {
-            NSLog(@"%@", [NSString stringWithFormat:@"Branch TestBed: Completed sharing to %@", activityType]);
-        } else {
-            NSLog(@"%@", [NSString stringWithFormat:@"Branch TestBed: Sharing failed"]);
+    [self.branchUniversalObject showShareSheetWithLinkProperties:linkProperties
+        andShareText:shareText
+        fromViewController:self.parentViewController
+        completion:^(NSString *activityType, BOOL completed) {
+            if (completed) {
+                NSLog(@"Branch TestBed: Completed sharing to %@", activityType);
+            } else {
+                NSLog(@"Branch TestBed: Sharing failed");
+            }
         }
-    }];
+    ];
 }
 
+- (IBAction)shareLinkButtonTouchUpInside:(id)sender {
+    // The new hotness.
+
+    BranchLinkProperties *linkProperties = [[BranchLinkProperties alloc] init];
+    linkProperties.feature = feature;
+    linkProperties.campaign = @"sharing campaign";
+    [linkProperties addControlParam:@"$desktop_url" withValue: desktop_url];
+    [linkProperties addControlParam:@"$ios_url" withValue: ios_url];
+
+    BranchShareLink *shareLink =
+        [[BranchShareLink alloc]
+            initWithUniversalObject:self.branchUniversalObject
+            linkProperties:linkProperties];
+
+    shareLink.title = @"Share your test link!";
+    shareLink.delegate = self;
+    shareLink.shareText = [NSString stringWithFormat:
+        @"Shared from Branch's Branch-TestBed at %@.",
+        [self.dateFormatter stringFromDate:[NSDate date]]];
+
+    [shareLink presentActivityViewControllerFromViewController:self anchor:nil];
+}
+
+- (IBAction)shareLinkAsActivityItem:(id)sender {
+    // Share as an activity item.
+
+    BranchLinkProperties *linkProperties = [[BranchLinkProperties alloc] init];
+    linkProperties.feature = feature;
+    linkProperties.campaign = @"sharing campaign";
+    [linkProperties addControlParam:@"$desktop_url" withValue: desktop_url];
+    [linkProperties addControlParam:@"$ios_url" withValue: ios_url];
+
+    BranchShareLink *shareLink =
+        [[BranchShareLink alloc]
+            initWithUniversalObject:self.branchUniversalObject
+            linkProperties:linkProperties];
+
+    shareLink.title = @"Share your test link!";
+    shareLink.delegate = self;
+    shareLink.shareText = [NSString stringWithFormat:
+        @"Shared from Branch's Branch-TestBed at %@.",
+        [self.dateFormatter stringFromDate:[NSDate date]]];
+
+    UIActivityViewController *activityController =
+        [[UIActivityViewController alloc]
+            initWithActivityItems:shareLink.activityItems
+            applicationActivities:nil];
+
+    if (activityController) {
+        [self presentViewController:activityController animated:YES completion:nil];
+    }
+}
+
+- (void) branchShareLinkWillShare:(BranchShareLink*)shareLink {
+    // This delegate example shows changing the share text.
+    //
+    // Link properties, such as alias or channel can be overridden here based on the users'
+    // choice stored in shareSheet.activityType.
+
+    shareLink.shareText = [NSString stringWithFormat:
+        @"Shared through '%@'\nfrom Branch's Branch-TestBed\nat %@.",
+        shareLink.linkProperties.channel,
+        [self.dateFormatter stringFromDate:[NSDate date]]];
+}
+
+- (void) branchShareLink:(BranchShareLink*)shareLink
+             didComplete:(BOOL)completed
+               withError:(NSError*)error {
+
+    if (error != nil) {
+        NSLog(@"Branch: Error while sharing! Error: %@.", error);
+    } else if (completed) {
+        NSLog(@"Branch: User completed sharing to channel '%@'.", shareLink.linkProperties.channel);
+    } else {
+        NSLog(@"Branch: User cancelled sharing.");
+    }
+}
+
+#pragma mark - Commerce Events
+
+- (IBAction) openBranchLinkInApp:(id)sender {
+    NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+    NSURL *URL = [NSURL URLWithString:@"https://bnc.lt/ZPOc/Y6aKU0rzcy"]; // <= Your URL goes here.
+    activity.webpageURL = URL;
+    Branch *branch = [Branch getInstance];
+    [branch resetUserSession];
+    [branch continueUserActivity:activity];
+}
+
+- (IBAction) sendCommerceEvent:(id)sender {
+    BNCProduct *product = [BNCProduct new];
+    product.price = [NSDecimalNumber decimalNumberWithString:@"1000.99"];
+    product.sku = @"acme007";
+    product.name = @"Acme brand 1 ton weight";
+    product.quantity = @(1.0);
+    product.brand = @"Acme";
+    product.category = BNCProductCategoryMedia;
+    product.variant = @"Lite Weight";
+
+    BNCCommerceEvent *commerceEvent = [BNCCommerceEvent new];
+    commerceEvent.revenue = [NSDecimalNumber decimalNumberWithString:@"1101.99"];
+    commerceEvent.currency = @"USD";
+    commerceEvent.transactionID = @"tr00x8";
+    commerceEvent.shipping = [NSDecimalNumber decimalNumberWithString:@"100.00"];
+    commerceEvent.tax = [NSDecimalNumber decimalNumberWithString:@"1.00"];
+    commerceEvent.coupon = @"Acme weights coupon";
+    commerceEvent.affiliation = @"ACME by Amazon";
+    commerceEvent.products = @[ product ];
+
+    [[Branch getInstance]
+        sendCommerceEvent:commerceEvent
+        metadata:@{ @"Meta": @"Never meta dog I didn't like." }
+        withCompletion:
+        ^ (NSDictionary *response, NSError *error) {
+			NSString *message =
+				[NSString stringWithFormat:@"Commerce completion called.\nError: %@\n%@", error, response];
+			NSLog(@"%@", message);
+			[[[UIAlertView alloc]
+				initWithTitle:@"Commerce Event"
+				message:message
+				delegate:nil
+				cancelButtonTitle:@"OK"
+				otherButtonTitles:nil]
+					show];
+        }];
+}
+
+#pragma mark - Spotlight
 
 //example using callbackWithURLandSpotlightIdentifier
 - (IBAction)registerWithSpotlightButtonTouchUpInside:(id)sender {
@@ -224,7 +394,6 @@ NSString *type = @"some type";
     [super viewWillAppear:animated];
     [self refreshRewardPoints];
 }
-
 
 - (void)textFieldFinished:(id)sender {
     [sender resignFirstResponder];

@@ -6,13 +6,12 @@
 //
 //
 
-#import "BNCServerRequest.h"
 
+#import "BNCServerRequest.h"
 @class BranchOpenRequest;
 
-@interface BNCServerRequestQueue : NSObject
 
-@property (nonatomic, readonly) unsigned int size;
+@interface BNCServerRequestQueue : NSObject
 
 - (void)enqueue:(BNCServerRequest *)request;
 - (BNCServerRequest *)dequeue;
@@ -26,9 +25,12 @@
 - (void)clearQueue;
 
 - (BOOL)containsInstallOrOpen;
+- (BOOL)removeInstallOrOpen;
 - (BOOL)containsClose;
 - (BranchOpenRequest *)moveInstallOrOpenToFront:(NSInteger)networkCount;
 
 + (id)getInstance;
 
+@property (readonly, assign) NSInteger queueDepth;
+@property (readonly, assign) BOOL isDirty;
 @end

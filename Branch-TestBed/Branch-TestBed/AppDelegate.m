@@ -5,7 +5,7 @@
 //  Created by Alex Austin on 6/5/14.
 //  Copyright (c) 2014 Branch Metrics. All rights reserved.
 //
-#import "Branch.h"
+#import "Branch/Branch.h"
 #import "AppDelegate.h"
 #import "LogOutputViewController.h"
 #import "NavigationController.h"
@@ -18,24 +18,31 @@
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     /**
      * // Push notification support (Optional)
      * [self registerForPushNotifications:application];
      */
 
     Branch *branch = [Branch getInstance];
-    [branch setDebug];
     
-    // For Apple Search Ads
-    // [branch delayInitToCheckForSearchAds];
-    // [branch setAppleSearchAdsDebugMode];
+    // Comment / un-comment to toggle debugging:
+    [branch setDebug];
 
+    // For Apple Search Ads
+    [branch delayInitToCheckForSearchAds];
+
+    // Turn this on to debug Apple Search Ads.  Should not be included for production.
+    // [branch setAppleSearchAdsDebugMode];
+    
     [branch setWhiteListedSchemes:@[@"branchtest"]];
 
-
     // Automatic Deeplinking on "deeplink_text"
-    NavigationController *navigationController = [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]] instantiateInitialViewController];
+    NavigationController *navigationController =
+        [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]]
+            instantiateInitialViewController];
+
     [branch registerDeepLinkController:navigationController forKey:@"deeplink_text"];
     
     /**
@@ -44,7 +51,9 @@
      */
 
     // Required. Initialize session. automaticallyDisplayDeepLinkController is optional (default is NO).
-    [branch initSessionWithLaunchOptions:launchOptions automaticallyDisplayDeepLinkController:YES deepLinkHandler:^(NSDictionary *params, NSError *error) {
+    [branch initSessionWithLaunchOptions:launchOptions
+        automaticallyDisplayDeepLinkController:YES
+        deepLinkHandler:^(NSDictionary *params, NSError *error) {
         if (!error) {
 
             NSLog(@"initSession succeeded with params: %@", params);
@@ -110,27 +119,40 @@
     [[Branch getInstance] resumeInit];
 }
 
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
+
     NSLog(@"application:openURL:sourceApplication:annotation: invoked with URL: %@", [url description]);
     
     // Required. Returns YES if Branch link, else returns NO
-    [[Branch getInstance] handleDeepLink:url];
-    
+    [[Branch getInstance]
+        application:application
+            openURL:url
+  sourceApplication:sourceApplication
+         annotation:annotation];
+
     // Process non-Branch URIs here...
     return YES;
 }
 
+- (BOOL)application:(UIApplication *)application
+continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray *))restorationHandler {
 
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *))restorationHandler {
-    NSLog(@"application:continueUserActivity:restorationHandler: invoked. activityType: %@ userActivity.webpageURL: %@", userActivity.activityType, userActivity.webpageURL.absoluteString);
+    NSLog(@"application:continueUserActivity:restorationHandler: invoked.\n"
+           "ActivityType: %@ userActivity.webpageURL: %@",
+           userActivity.activityType,
+           userActivity.webpageURL.absoluteString);
     
-    // Required. Returns YES if Branch Universal Link, else returns NO. Add `branch_universal_link_domains` to .plist (String or Array) for custom domain(s).
+    // Required. Returns YES if Branch Universal Link, else returns NO.
+    // Add `branch_universal_link_domains` to .plist (String or Array) for custom domain(s).
     [[Branch getInstance] continueUserActivity:userActivity];
     
     // Process non-Branch userActivities here...
     return YES;
 }
-
 
 #pragma mark - Push Notifications (Optional)
 
