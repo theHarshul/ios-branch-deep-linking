@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0830"
+   LastUpgradeVersion = "0730"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -17,6 +17,20 @@
                BlueprintIdentifier = "6700165F1940F51400A9E103"
                BuildableName = "Branch-TestBed.app"
                BlueprintName = "Branch-TestBed"
+               ReferencedContainer = "container:Branch-TestBed.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "7E6B3B501AA42D0E005F45BF"
+               BuildableName = "Branch-SDK-Tests.xctest"
+               BlueprintName = "Branch-SDK-Tests"
                ReferencedContainer = "container:Branch-TestBed.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

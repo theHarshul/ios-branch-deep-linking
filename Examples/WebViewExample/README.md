@@ -1,4 +1,4 @@
-# webview_example
+# WebViewExample
 
 This app presents a list of the planets in a UITableView. When each
 row is tapped, a custom ArticleView is displayed using the a UINavigationController.
@@ -14,4 +14,5 @@ a link is opened.
 
 ## Building
 
-Just run `pod install` to install all pod dependencies.
+* Just run `pod install` and `pod update` in terminal to install all pod dependencies.
+* Then build and run the WebViewExample.xcworkspace with Xcode.

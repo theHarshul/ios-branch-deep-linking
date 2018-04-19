@@ -9,7 +9,6 @@
 #import "CreditHistoryViewController.h"
 
 @interface CreditHistoryViewController ()
-
 @end
 
 @implementation CreditHistoryViewController
@@ -73,8 +72,9 @@
                 [dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
                 [cell detailTextLabel].text = [dateFormatter stringFromDate:date];
             }
-            
-            [cell detailTextLabel].text = [dateFormatter stringFromDate:date];
+
+            if (date)
+                [cell detailTextLabel].text = [dateFormatter stringFromDate:date];
         }
         
         

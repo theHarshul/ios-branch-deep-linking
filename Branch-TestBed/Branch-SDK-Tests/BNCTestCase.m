@@ -7,7 +7,33 @@
 //
 
 #import "BNCTestCase.h"
+#import "BNCApplication.h"
+#import "BNCLog.h"
 #import "BNCPreferenceHelper.h"
+
+@interface BNCApplication () {
+    @public
+        NSDate *_currentInstallDate;
+        NSDate *_firstInstallDate;
+        NSDate *_currentBuildDate;
+}
+@end
+
+#pragma mark - BNCTestStringMatchesRegex
+
+BOOL BNCTestStringMatchesRegex(NSString *string, NSString *regex) {
+    NSError *error = nil;
+    NSRegularExpression* nsregex = [NSRegularExpression regularExpressionWithPattern:regex options:0 error:&error];
+    if (error) {
+        NSLog(@"Error in regex pattern: %@.", error);
+        return NO;
+    }
+    NSRange stringRange = NSMakeRange(0, string.length);
+    NSTextCheckingResult *match = [nsregex firstMatchInString:string options:0 range:stringRange];
+    return NSEqualRanges(match.range, stringRange);
+}
+
+#pragma mark - BNCTestCase
 
 @interface BNCTestCase ()
 @property (assign, nonatomic) BOOL hasExceededExpectations;
@@ -17,7 +43,7 @@
 
 + (void)setUp {
     [super setUp];
-    
+
     BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
     if (!preferenceHelper.deviceFingerprintID) {
         preferenceHelper.deviceFingerprintID = @"foo_fingerprint";
@@ -72,6 +98,29 @@
     }];
 }
 
+- (NSString*) stringFromBundleWithKey:(NSString*)key {
+    NSString *const kItemNotFound = @"<Item-Not-Found>";
+    NSString *resource =
+        [[NSBundle bundleForClass:self.class] localizedStringForKey:key value:kItemNotFound table:@"Branch-SDK-Tests"];
+    if ([resource isEqualToString:kItemNotFound]) resource = nil;
+    return resource;
+}
+
+- (NSMutableDictionary*) mutableDictionaryFromBundleJSONWithKey:(NSString*)key {
+
+    NSString *jsonString = [self stringFromBundleWithKey:key];
+    XCTAssertTrue(jsonString, @"Can't load '%@' resource from bundle JSON!", key);
+
+    NSError *error = nil;
+    NSDictionary *dictionary =
+        [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]
+            options:0 error:&error];
+    XCTAssertNil(error);
+    XCTAssert(dictionary);
+    NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionary];
+    return mutableDictionary;
+}
+
 static BOOL _testBreakpoints = NO;
 
 + (BOOL) testBreakpoints {
@@ -80,15 +129,30 @@ static BOOL _testBreakpoints = NO;
 
 + (void) initialize {
     if (self != [BNCTestCase self]) return;
+    BNCLogSetDisplayLevel(BNCLogLevelAll);
 
     // Load test options from environment variables:
 
     NSDictionary<NSString*, NSString*> *environment = [NSProcessInfo processInfo].environment;
-
     NSString *BNCTestBreakpoints = environment[@"BNCTestBreakpoints"];
     if ([BNCTestBreakpoints boolValue]) {
         _testBreakpoints = YES;
     }
+}
+
++ (void) setAppOriginalInstallDate:(NSDate*)originalInstallDate
+        firstInstallDate:(NSDate*)firstInstallDate
+        lastUpdateDate:(NSDate*)lastUpdateDate
+        previousUpdateDate:(NSDate*)previousUpdateDate {
+
+    BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
+    BNCApplication *application = [BNCApplication currentApplication];
+
+    application->_currentInstallDate = firstInstallDate;        // latest_install_time
+    application->_firstInstallDate = originalInstallDate;       // first_install_time
+    application->_currentBuildDate = lastUpdateDate;            // lastest_update_time
+    preferenceHelper.previousAppBuildDate = previousUpdateDate; // previous_update_time
+    [preferenceHelper synchronize];
 }
 
 @end

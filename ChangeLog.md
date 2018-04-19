@@ -1,5 +1,367 @@
 Branch iOS SDK Change Log
 
+- v0.24.1
+  * _*Master Release*_ - April 5, 2018
+  * Updated the SDK for Xcode 9.3 and Swift 4.1.
+  * Fixed the new warnings.
+
+- v0.24.0
+  * _*Master Release*_ - April 3, 2018
+  * Added the ability to disable user tracking (#794, DEVEX-242). This is useful for GDPR compliance.
+    - Added `setTrackingDisabled` and `trackingDisabled` methods to the Branch class to set and query the tracking state.
+    - Added the `BNCTrackingDisabledError` error code that's returned to callbacks when tracking is disabled.
+    - Added a 'Do not track' option to UITestBed.
+    - Updated the SDK so that deep links can be opened even when 'no tracking' is set.
+    - Updated documentation.
+  * Fixed some code analyzer warnings.
+  * Added SMS as a link scraper when sharing.
+  * Fixed some unit tests and updated pods.
+
+- v0.23.5
+  * _*Master Release*_ - March 27, 2018
+  * Added a field to set an email subject without adding it as a link parameter.
+    - The field is BranchShareLink.emailSubject.
+    - This is analogous to the similar Android option.
+    - Updated the Branch code to use the newer `activityViewController:subjectForActivityType:`
+      delegate as well as support the old style set-undocumented-option-on-view-controller way.
+    - Setting an email subject for Gmail is still broken. This is a Gmail problem and I've
+      filed an issue with Gmail (GitHub #789).
+  * After sharing a link in Skype, the link would open in the app as if a deferred deep linking had
+    happened (DEVEX-278, GitHub #793).
+    - Fixed this so that Skype content scraping doesn't trigger a deferred deep link.
+  * Don't print expected HTTP status 404 error pages because it looks like an error (GitHub #800).
+  * Fixed Airdrop of a URL scheme link open (INTENG-4106).
+  * Fixed a Fabric share content event bug.
+
+- v0.23.4
+  * _*Master Release*_ - March 16, 2018
+  * Made sure v2 events for sharing and content view were being sent.
+  * Added rewards testing to the UITestBed app.
+  * Made sure that `BNCNetworkService` network sessions are deallocated.
+  * Silenced some code analyzer warnings GH-#795, #796.
+
+- v0.23.3
+  * _*Master Release*_ - March 13, 2018
+  * Prevent a recursive call when locating the Branch preferences directory.
+
+- v0.23.2
+  * _*Master Release*_ - March 7, 2018
+  * Updated the Cocoapod podspec for compatibility with frameworks when Branch is used as a dependency.
+
+- v0.23.1
+  * _*Master Release*_ - March 6, 2018
+  * Removed test features.
+  * Added more URL black list tests.
+  * Added more analyzer checks.
+
+- v0.23.0
+  * Added URL Black List for sensitive URLs (DEVEX-164).
+
+    Set this property to prevent URLs with sensitive content such as oauth tokens,
+    passwords, login data, and other data from being transmitted to Branch.
+
+    The Branch SDK already ignores login URLs for Facebook, Twitter, Google, and most oauth
+    security URLs, so it's usually unnecessary to set this parameter yourself.
+
+    Set this parameter with any additional URLs that should be ignored by Branch.
+
+  * Added an SDK integration validator.
+
+    Use the SDK integration validator to check that you've added the Branch SDK and handle
+    deep links correctly when you first integrate Branch into your app.
+
+    To check your integration, add the line:
+
+    ```
+    [[Branch getInstance] validateSDKIntegration];
+    ```
+
+    in your `application:didFinishLaunchingWithOptions:` method in your app delegate. Then run your
+    app and follow the instructions.
+
+    This is for testing in development only! Make sure you remove or comment out this line of code in
+    your release versions.
+
+    See [SDK Integration Validator](https://docs.branch.io/pages/resources/validation-tools/#overview_1) for more information.
+
+  * Added a Deeplink Routing Validator
+
+    Append validate=true to your Branch links to test and verify if they route the user
+    to the correct content.
+
+    See [Deeplink Validator](https://docs.branch.io/pages/resources/validation-tools/#overview_1) for more information.
+
+  * Updated TestBed-Swift icons to differentiate it from the other test apps.
+  * Updated PodSpec for new CocoaPod static frameworks flag (GH-782).
+  * Added Crashlytics to TestBed-Swift (DEVEX-114).
+  * Robustly read `identity_id` as a string to prevent a crash (GH-783).
+  * Transmit app install/update dates to server for app install/open attribution (DEVEX-58).
+  * Create the Branch directory in a more thread safe way (INTENG-4097).
+
+- v0.22.5
+  * _*Master Release*_ - January 12, 2018
+  * Added the `rating` field to the `BranchUniversalObject`.
+
+- v0.22.4
+  * _*Master Release*_ - January 3, 2018
+  * Fix for crash when the application delegate does not have a window variable.
+
+- v0.22.3
+  * _*Master Release*_ - December 29, 2017
+  * Fixed the static library build.
+
+- v0.22.2
+  * _*Master Release*_ - December 29, 2017
+
+- v0.22.1
+  * Flattened the Branch Universal Object dictionary to be fully compatible with Android.
+
+- v0.22.0
+  * Apple search ads weren't timing out on iPad during initialization.
+    - This could block Branch initialization when Search Ad attribution was turned on.
+  * Fixed a deadlock found in iOS 9.3 / iPhone 5s.
+  * Added the `[UIViewController bnc_currentViewController]` as a category.
+
+- v0.21.16
+  * _*Master Release*_ - December 18, 2017
+  * Fixed the BranchUniversalObject for v2-events & updated the UITestBed. (#768)
+  * Fixed update / install tracking when app installed but not run for a while. (#763)
+  * Added some code for Will's AppsFlyer integration in the Swift test bed. (#767)
+  * Added `limit_facebook_tracking` to allow developers to opt-out of Facebook app tracking (AIS-417).
+  * Moved the forward declaration of `[NSLocal countryCode]` so that it doesn't interfere with
+    newer Swift compilations.
+
+- v0.21.14
+  * _*Master Release*_ - December 8, 2017
+  * Added a unit test for correct app dates for update / install checking.
+  * Fixed an incorrect deprecation message for BranchUniversalObject indexing.
+  * Updated the documentation for BranchUniversalObjects and BranchEvents.
+  * Updated link sharing for iOS 11.2 notepad.
+
+- v0.21.13
+  * Fixed the Carthage library build.
+
+- v0.21.12
+  * Fixed a crash bug in TestBed-Swift due to a renamed storyboard (AIS-430).
+
+- v0.21.11
+  * Fix CoreSpotlight defines for old iOS version support.
+
+- v0.21.10
+  * _*Master Release*_ - November 20, 2017
+  * Fixed a public header for the static library.
+
+- v0.21.9
+  * _*Master Release*_ - November 20, 2017
+  * Fixed some merge conflicts.
+
+- v0.21.8
+  * _*Master Release*_ - November 20, 2017
+
+- v0.21.5
+  * NOTE: There is a known crash bug when sharing a Branch link via the Slack activity.
+    - Slack is aware of this crash and is working to fix it. It is an intermittent crash in iOS 11.
+    - The crash is in `-[NSExtension _completeRequestReturningItems:forExtensionContextWithUUID:completion:]_block_invoke ()`
+  * Updated comments.
+  * Fixed a race condition in the preference helper.
+  * Added a deep link key to the Testbed example to be more compatible with the Android version.
+
+- v0.21.3
+  * Fixed an occasional crash when sharing a Branch link to Slack. The crash only occurred on some versions of iOS.
+  * Updated TestBed-Swift to Swift 4 and added a bunch of third party integrations.
+  * Added BranchWillStartSessionNotification / BranchDidStartSessionNotification Branch session notifications.
+  * Added a Branch delegate with optional delegate methods.
+  * Better Spotlight: Added a better interface to listing your application's content on Spotlight.
+    [See the updated Spotlight documentation.](https://github.com/BranchMetrics/ios-branch-deep-linking#list-content-on-spotlight)
+
+- v0.21.2
+  * Update README.md to use proper Swift syntax.
+  * Better debugging messages for requests.
+  * Added an event picker for v2-event testing in the TestBed.
+
+- v0.21.1
+  * Fixed some annoying compile warnings.
+  * Made module support optional.
+
+- v0.21.0
+  * Added v2-event support.
+  * Updated readme.md to include instructions for building a project withBranch as a sub-project.
+  * Suppressed more unnecessary compatibility warnings.
+  * Testbed-Swift now has many more third party integrations.
+
+- v0.20.3
+  * _*Master Release*_ - November 9, 2017
+  * Logging not persisted.
+
+- v0.20.2
+  * _*Master Release*_ - October 18, 2017
+  * Fixed Carthage build for the new version of Carthage.
+  * Added the `BNC_API_PINNED` flag to disable cert pinning. Not recommended.
+  * Added pragmas to silence availability warnings (GH #733, #735).
+  * Share sheet fixes:
+    - Allow UIBarButtonItem or UIView as share presentation anchor (AIS-360 AIS-376).
+    - When a share sheet is cancelled, it now correctly doesn't report as completed (AIS-395, GH-#736).
+  * Bug fix for automatic deeplinking controller:
+    - To support old and new API for automatic deeplinking Controller, there are two types of value
+      existed in deepLinkControllers dictionary: BNCDeepLinkViewControllerInstance and UIViewController.
+      The variable `branchSharingController.deepLinkingCompletionDelegate = self` was set before
+      checking type of the `deepLinkControllers`' value.
+
+- v0.19.5
+  * _*Master Release*_ - September 29, 2017
+
+- v0.19.0
+  * Fixed duplicate URL being copied when a link is copied to the clipboard in iOS 11.
+  * Changed the use of `typeof` to `__typeof`, for stricter compiler options.
+  * The SDK now send the Apple Search Ad attribution only when it changes (DLA-969, #723).
+  * Add local ip address to returned device info (AIS-341).
+  * Added `UITestBed`, a test app more suited to automated UI tests.
+  * WebviewExample updates. The example now shows:
+    - How to deep link from a web page in a WKWebView back into the app.
+    - How to navigate forward and back with a Branch link in a WebView.
+    - How to use Fastlane with the Branch SDK.
+    - The code is updated for Swift 4.0 / Xcode 9.0.
+  * Fixed a number of warnings generated from strict compiler checking (GH-#719).
+  * Branch when generating a Branch link with an alias, identityID is included in the params (INTENG-3725).
+    - This makes Branch link referrals work.
+    - Generating an aliased Branch link may result in a long link being generated where a short link
+      was generated before.
+  * The SDK now uses modules instead of a module map for better Swift integration.
+
+- v0.18.8
+  * _*Master Release*_ - September 13, 2017
+
+- v0.18.6
+  * Fixed TestBed-Swift for Xcode 9 (but not upgraded to Swift 4 yet).
+  * Fixed some thread safety and iOS 11 bugs.
+
+- v0.18.3
+  * Fixed query string parsing for iOS 7 and added more tests.
+
+- v0.18.2
+  * Language and locale were reported wrong (GH-#707).
+  * Getting the user agent in iOS 7 would stall initialization sometimes.
+
+- v0.18.1
+  * Update Apple search ads mock-up for testing and backend (GH-#682,#706).
+    - Fixed and tested encoding JSON boolean true as 'true' vs. '1'.
+    - Updated Apple search ad dictionary for testing.
+
+- v0.18.0
+  * Branch links opened via Air Drop now open correctly (GH-#699,#701).
+  * Fixed remote push notification handling (GH-#703,#704).
+  * Fixed a race condition on startup while getting the browser string (GH-#700,#702).
+  * Removed vestigial CoreTelephony references (GH-#689).
+  * Updated project for Xcode 9 compatibility.
+  * Update the BranchShareLink.shareURL member field correctly after share event (#696).
+  * Added ability to turn logging on and off via links / Info.plist (GH-#697).
+
+- v0.17.10
+  * _*Master Release*_ - August 23, 2017
+  * Don't do cookie based matching in iOS 11 (AIS-307, GH-#681).
+  * Fix an initialization problem in iOS 8.
+    Logging was calling a protocol method which would lock up initialization on iOS 8 (GH-#694).
+
+- v0.17.9
+  * _*Master Release*_ - August 15, 2017
+  * Fixed the Branch.framework static library build. How long was this broken? A year? Since 12.2?
+    Good grief.
+
+- v0.17.7
+  * _*Master Release*_ - August 14, 2017
+  * Fixed some header inclusion and the framework upload.
+
+- v0.17.6
+  * _*Master Release*_ - August 11, 2017
+  * Added a check for buffer length before reading a pointer.
+
+- v0.17.5
+  * _*Master Release*_ - August 8, 2017
+  * Fixed Carthage build.
+
+- v0.17.3
+  * _*Master Release*_ - August 8, 2017
+
+- v0.17.2
+  * _*Beta Release*_ - August 4, 2017
+  * Support de-duping our NSUserActivity-based indexed Spotlight search items (With caveats. See
+    GitHub PR #668).
+  * Added a guard to prevent a crash bug from when bad data was accidentally passed back from the
+    Branch servers (GitHub #672).
+  * Fixed a crash bug that sometimes occurred when logging to the Branch log file (GitHub #661).
+  * Added 'com.googleusercontent.apps' as an o-auth scheme (GitHub #678).
+  * Used address sanitizer & thread sanitizer to find and fix several thread and memory errors.
+  * Escape extra html tags in dynamic Branch links (INTENG-3466).
+
+- v0.17.1
+  * _*Beta Release*_ - August 1, 2017
+  * Added support for using a provided network stack instead of the standard Branch SDK network calls.
+    See the documentation in the `BNCNetworkServiceProtocol.h` file for details.
+  * Added certificate pining for branch.io server calls.
+  * Removed support for iOS 6 networking.
+  * The iOS Security.framework is now required for linking with the Branch SDK.
+  * Cleaned up NSError error messages.
+  * Added support for localization of error messages. Send us your localizations!
+  * Added Russian translation of user facing SDK messages and errors.
+
+- v0.17.0
+  * _*Beta Release*_ - July 24, 2017
+  * Added Crashlytics reporting enhancements (#653)
+    - The Branch SDK version number is now recorded in Crashlytics logs.
+    - The Branch deviceFingerprintId is also recorded in Crashlytics by default. This is optional.
+    - Added BNCCrashlyticsWrapper.
+    - Added and updated unit tests.
+  * BNCDeviceInfo thread safety to prevent crash during initialization (GitHub #654 & #656).
+    - Updated all instance properties on BNCDeviceInfo to be totally thread-safe.
+    - Made all BNCDeviceInfo properties readonly. Lazy initialization of vendorId due to idiosyncrasy
+      of UIDevice.identifierForVendor.
+    - Separated messages to deviceInfo from messages to self in a troublesome stack frame.
+
+- v0.16.2
+  * *Master Release* - July 13, 2017
+  * Decoupled logic for determining app language and app country code.
+  * Updated the project for Xcode 9 beta and iOS 11 beta.
+  * Removed the dependency on the CoreTelephony framework.
+  * Fixed an occasional crash when retrieving country code and language.
+  * Made SafariServices an optional CocoaPod podspec.
+
+- v0.16.1
+  * *QA Release* - July 5, 2017
+  * Added a new method to the API for registering a deep link controller. The API adds presentation
+    options for showing the deep link controller:
+```
+        - (void)registerDeepLinkController:(UIViewController <BranchDeepLinkingController> *)controller
+                                    forKey:(NSString *)key
+                          withPresentation:(BNCViewControllerPresentationOption)option;
+```
+
+    and depreciated the old API:
+
+```
+        - (void)registerDeepLinkController:(UIViewController <BranchDeepLinkingController> *)
+                controller forKey:(NSString *)key;
+
+```
+
+    See [Registering a view controller to handle deep linking" in the documentation.](https://dev.branch.io/getting-started/deep-link-routing/advanced/ios/#register-view-controller-for-deep-link-routing)
+
+  * Added a WebViewExample-Test schema to illustrate how to use custom configurations and schemas
+    to select the Branch environment.
+  * Make it easier to use the Branch test key.
+    - Added the Branch class methods `useTestBranchKey` and `branchKey` to set the Branch key to use.
+    - If `useTestBranchKey` is set to true, Branch will attempt to use the `test` key from the
+      Info.plist.
+   * Updated the docs to show BranchShareLink usage, especially how the use the BranchShareLink
+     delegate to change the share text based on user selection.
+
+- v0.16.0
+  * *QA Release* - June 14, 2017
+  * Branch support for opening Branch links inside an app once a session is already started (like AppBoy) (AIS-264).
+  * Updated logging. Logging is more robust and consistant. Fixed the punctuation and grammer for logging messages.
+  * Added a standard `BNCCurrency` type for commerce events.
+  * Stop sending the Apple search ad data after attribution has been found or 30 days (AIS-267).
+  * Added a deprecation warning added for older BranchActivityItems in BranchUniversalObject.h (#631).
+
 - v0.15.3
   * *Master Release*
 

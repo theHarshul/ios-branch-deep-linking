@@ -6,20 +6,9 @@
 //  Copyright (c) 2015 Branch Metrics. All rights reserved.
 //
 
-
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
-#import <OCMock/OCMock.h>
-#import "Branch.h"
-#import "BNCPreferenceHelper.h"
-#import "BNCServerInterface.h"
-#import "BNCConfig.h"
-#import "BNCEncodingUtils.h"
-#import "BNCServerRequestQueue.h"
 #import "BNCTestCase.h"
 
-
-NSString * const TEST_BRANCH_KEY = @"key_live_78801a996de4287481fe73708cc95da2";  //temp
+NSString * const TEST_BRANCH_KEY = @"key_live_78801a996de4287481fe73708cc95da2";
 NSString * const TEST_DEVICE_FINGERPRINT_ID = @"94938498586381084";
 NSString * const TEST_BROWSER_FINGERPRINT_ID = @"69198153995256641";
 NSString * const TEST_IDENTITY_ID = @"95765863201768032";
@@ -32,11 +21,9 @@ NSString * const TEST_NEW_SESSION_ID = @"98274447370224207";
 NSString * const TEST_NEW_USER_LINK = @"https://bnc.lt/i/2kkbX6k-As";
 NSInteger const  TEST_CREDITS = 30;
 
-
 @interface BranchSDKFunctionalityTests : BNCTestCase
 @property (assign, nonatomic) BOOL hasExceededExpectations;
 @end
-
 
 @implementation BranchSDKFunctionalityTests
 
@@ -44,7 +31,7 @@ NSInteger const  TEST_CREDITS = 30;
     id serverInterfaceMock = OCMClassMock([BNCServerInterface class]);
 
     BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
-    preferenceHelper.branchKey = @"foo";
+    Branch.branchKey = @"key_live_foo";
     
     Branch *branch =
         [[Branch alloc]
@@ -52,7 +39,7 @@ NSInteger const  TEST_CREDITS = 30;
             queue:[[BNCServerRequestQueue alloc] init]
             cache:[[BNCLinkCache alloc] init]
             preferenceHelper:preferenceHelper
-            key:@"foo"];
+            key:@"key_live_foo"];
     
     BNCServerResponse *openInstallResponse = [[BNCServerResponse alloc] init];
     openInstallResponse.data = @{
@@ -140,14 +127,13 @@ NSInteger const  TEST_CREDITS = 30;
         XCTAssertEqualObjects(preferenceHelper.identityID, @"98687515069776101");
         NSDictionary *installParams = [nonRetainedBranch getFirstReferringParams];
         
-        XCTAssertEqualObjects(installParams[@"$og_title"], @"Kindred"); //TODO: equal to params?
+        XCTAssertEqualObjects(installParams[@"$og_title"], @"Kindred");
         XCTAssertEqualObjects(installParams[@"key1"], @"test_object");
         
         [self safelyFulfillExpectation:setIdentityExpectation];
     }];
     
     [self awaitExpectations];
-    
     [serverInterfaceMock verify];
 }
 
@@ -162,7 +148,7 @@ NSInteger const  TEST_CREDITS = 30;
             queue:[[BNCServerRequestQueue alloc] init]
             cache:[[BNCLinkCache alloc] init]
             preferenceHelper:preferenceHelper
-            key:@"key_foo"];
+            key:@"key_live_foo"];
 
     BNCServerResponse *fbLinkResponse = [[BNCServerResponse alloc] init];
     fbLinkResponse.statusCode = @200;
@@ -185,13 +171,13 @@ NSInteger const  TEST_CREDITS = 30;
             return YES;
         }]];
     
-    [[serverInterfaceMock reject] postRequest:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
+    [[serverInterfaceMock reject] postRequestSynchronous:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
         return [params[@"channel"] isEqualToString:@"facebook"];
-    }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any] log:YES];
+    }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any]];
     
-    [[[serverInterfaceMock expect] andReturn:twLinkResponse] postRequest:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
+    [[[serverInterfaceMock expect] andReturn:twLinkResponse] postRequestSynchronous:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
         return [params[@"channel"] isEqualToString:@"twitter"];
-    }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any] log:YES];
+    }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any]];
     
     XCTestExpectation *getShortURLExpectation = [self expectationWithDescription:@"Test getShortURL"];
     
@@ -238,7 +224,7 @@ NSInteger const  TEST_CREDITS = 30;
             queue:[[BNCServerRequestQueue alloc] init]
             cache:[[BNCLinkCache alloc] init]
             preferenceHelper:preferenceHelper
-            key:@"key_foo"];
+            key:@"key_live_foo"];
 
     XCTestExpectation *getShortURLExpectation = [self expectationWithDescription:@"Test getShortURL Sync"];
     [branch initSessionWithLaunchOptions:@{} andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
@@ -251,18 +237,18 @@ NSInteger const  TEST_CREDITS = 30;
         twLinkResponse.data = @{ @"url": @"https://bnc.lt/l/-03N4BGtJj" };
         
         // FB should only be called once
-        [[[serverInterfaceMock expect] andReturn:fbLinkResponse] postRequest:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
+        [[[serverInterfaceMock expect] andReturn:fbLinkResponse] postRequestSynchronous:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
             return [params[@"channel"] isEqualToString:@"facebook"];
-        }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any] log:YES];
+        }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any]];
         
-        [[serverInterfaceMock reject] postRequest:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
+        [[serverInterfaceMock reject] postRequestSynchronous:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
             return [params[@"channel"] isEqualToString:@"facebook"];
-        }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any] log:YES];
+        }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any]];
         
         // TW should be allowed still
-        [[[serverInterfaceMock expect] andReturn:twLinkResponse] postRequest:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
+        [[[serverInterfaceMock expect] andReturn:twLinkResponse] postRequestSynchronous:[OCMArg checkWithBlock:^BOOL(NSDictionary *params) {
             return [params[@"channel"] isEqualToString:@"twitter"];
-        }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any] log:YES];
+        }] url:[preferenceHelper getAPIURL:@"url"] key:[OCMArg any]];
         
         NSString *url1 = [branch getShortURLWithParams:nil andChannel:@"facebook" andFeature:nil];
         XCTAssertNotNil(url1);
@@ -292,7 +278,7 @@ NSInteger const  TEST_CREDITS = 30;
             queue:[[BNCServerRequestQueue alloc] init]
             cache:[[BNCLinkCache alloc] init]
             preferenceHelper:preferenceHelper
-            key:@"key_foo"];
+            key:@"key_live_foo"];
 
     [preferenceHelper setCreditCount:NSIntegerMax forBucket:@"default"];
     
@@ -330,7 +316,7 @@ NSInteger const  TEST_CREDITS = 30;
             queue:[[BNCServerRequestQueue alloc] init]
             cache:[[BNCLinkCache alloc] init]
             preferenceHelper:preferenceHelper
-            key:@"key_foo"];
+            key:@"key_live_foo"];
 
     [preferenceHelper setCreditCount:1 forBucket:@"default"];
     
@@ -374,7 +360,7 @@ NSInteger const  TEST_CREDITS = 30;
             queue:[[BNCServerRequestQueue alloc] init]
             cache:[[BNCLinkCache alloc] init]
             preferenceHelper:preferenceHelper
-            key:@"key_foo"];
+            key:@"key_live_foo"];
 
     [preferenceHelper setCreditCount:1 forBucket:@"default"];
     
@@ -435,7 +421,7 @@ NSInteger const  TEST_CREDITS = 30;
 			queue:[[BNCServerRequestQueue alloc] init]
 			cache:[[BNCLinkCache alloc] init]
 			preferenceHelper:preferenceHelper
-			key:@"key_foo"];
+			key:@"key_live_foo"];
 
     // Init session
 
@@ -460,10 +446,9 @@ NSInteger const  TEST_CREDITS = 30;
 
     [[[serverInterfaceMock expect]
         andReturn:urlResp]
-            postRequest:[OCMArg any]
+            postRequestSynchronous:[OCMArg any]
             url:[preferenceHelper getAPIURL:@"url"]
-            key:[OCMArg any]
-            log:YES];
+            key:[OCMArg any]];
 
     NSString *url1 = [branch getShortURLWithParams:nil andChannel:nil andFeature:nil];
     XCTAssertEqual(urlTruthString, url1);
@@ -504,10 +489,9 @@ NSInteger const  TEST_CREDITS = 30;
 
     [[[serverInterfaceMock expect]
         andReturn:urlResp]
-            postRequest:[OCMArg any]
+            postRequestSynchronous:[OCMArg any]
             url:[preferenceHelper getAPIURL:@"url"]
-            key:[OCMArg any]
-            log:YES];
+            key:[OCMArg any]];
 
     NSString *url2 = [branch getShortURLWithParams:nil andChannel:nil andFeature:nil];
     XCTAssertEqualObjects(url1, url2);
@@ -550,7 +534,8 @@ NSInteger const  TEST_CREDITS = 30;
     };
     
     id openOrInstallUrlCheckBlock = [OCMArg checkWithBlock:^BOOL(NSString *url) {
-        return [url rangeOfString:@"open"].location != NSNotFound || [url rangeOfString:@"install"].location != NSNotFound;
+        return [url rangeOfString:@"open"].location != NSNotFound ||
+               [url rangeOfString:@"install"].location != NSNotFound;
     }];
     [[[serverInterfaceMock expect]
         andDo:openOrInstallInvocation]
@@ -558,11 +543,6 @@ NSInteger const  TEST_CREDITS = 30;
         url:openOrInstallUrlCheckBlock
         key:[OCMArg any]
         callback:openOrInstallCallbackCheckBlock];
-    
-    // Fake branch key
-    id preferenceHelperMock = OCMClassMock([BNCPreferenceHelper class]);
-    [[[preferenceHelperMock stub] andReturn:@"foo"] getBranchKey:YES];
 }
 
 @end
-

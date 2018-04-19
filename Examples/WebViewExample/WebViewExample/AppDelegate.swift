@@ -16,7 +16,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - UIApplicationDelegate methods
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication,
+didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        /*
+         * Use the test instance if USE_BRANCH_TEST_INSTANCE is defined. This is defined in the
+         * Test-Debug and Test-Release configurations, which are used by the WebViewExample-Test
+         * schema. Use that schema for the test environment and the WebViewExample schema for the
+         * live environment. This allows, e.g., building an archive for distribution using TestFlight
+         * or Crashlytics that connects to the Branch test environment using the WebViewExample-Test
+         * schema.
+         */
+        #if USE_BRANCH_TEST_INSTANCE
+            Branch.setUseTestBranchKey(true)
+        #endif
 
         // Store the NavigationController for later link routing.
         navigationController = window?.rootViewController as? NavigationController
@@ -36,11 +48,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+    func application(_ app: UIApplication,
+                  open url: URL,
+                   options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+        BNCLog("application:open:options: called.")
         return Branch.getInstance().application(app, open: url, options: options)
     }
     
-    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+    func application(_ application: UIApplication,
+             continue userActivity: NSUserActivity,
+                restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        BNCLog("application:continueUserActivity:restorationHandler: called.");
         return Branch.getInstance().continue(userActivity)
     }
 
@@ -48,9 +66,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func routeURLFromBranch(_ buo: BranchUniversalObject) {
         guard let planetData = PlanetData(branchUniversalObject: buo) else { return }
-
-        let articleViewController = ArticleViewController(planetData: planetData)
-        navigationController.pushViewController(articleViewController, animated: true)
+        if buo.contentMetadata.customMetadata["useSameView"] as? String == "true" {
+           if let articleViewController =
+                  navigationController.topViewController as? ArticleViewController {
+               articleViewController.planetData = planetData
+            }
+        } else {
+            let articleViewController = ArticleViewController(planetData: planetData)
+            navigationController.pushViewController(articleViewController, animated: true)
+        }
     }
 }
 
